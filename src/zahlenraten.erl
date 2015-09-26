@@ -2,7 +2,7 @@
 %% Guess a number!
 
 -module(zahlenraten).
--export([run/0, nochmal/0]).
+-export([run/0]).
 
 run() ->
   io:fwrite("Zahlenraten~n", []),
@@ -22,7 +22,7 @@ input(LOOP, N) ->
 
 test(LOOP, N, N) ->
   io:fwrite("~n*** Zahl erraten! ***~nSie haben die Zahl mit ~p Versuchen erraten!~n~n", [LOOP]),
-  nochmal();
+  again();
 test(LOOP, N, V) when V < N ->
   io:fwrite("Ihre Zahl ist zu klein!~n", []),
   input(LOOP + 1, N);
@@ -33,18 +33,18 @@ test(LOOP, N, _) ->
   io:fwrite("~nLeider falsch. Versuchen Sie es weiter!~n", []),
   input(LOOP + 1, N).
 
-nochmal() ->
+again() ->
   {ok, [C]} = io:fread("Wollen Sie nochmal? [J/N] ", "~c"),
-  nochmal(C).
+  again(C).
 
-nochmal("j") ->
+again("j") ->
   run();
-nochmal("J") ->
+again("J") ->
   run();
-nochmal("n") ->
+again("n") ->
   io:fwrite("Tschuess~n", []);
-nochmal("N") ->
+again("N") ->
   io:fwrite("Tschuess~n", []);
-nochmal(_) ->
+again(_) ->
   io:fwrite("Ihre Eingabe war ungueltig!~n", []),
-  nochmal().
+  again().
