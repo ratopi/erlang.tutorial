@@ -16,9 +16,14 @@ calculatenNumber() ->
 
 input(LOOP, N) ->
   io:fwrite("~nIhr ~p. Versuch: ", [LOOP]),
-  {ok, [V]} = io:fread("> ", "~d"),
-  io:fwrite("~nSie haben die Zahl ~p eingegeben~n", [V]),
-  test(LOOP, N, V).
+  case io:fread("> ", "~d") of
+    {ok, [V]} ->
+      io:fwrite("~nSie haben die Zahl ~p eingegeben~n", [V]),
+      test(LOOP, N, V);
+    {error, _} ->
+      io:fwrite("Das war keine gueltige Eingabe!~n", []),
+      input(LOOP, N)
+  end.
 
 test(LOOP, N, N) ->
   io:fwrite("~n*** Zahl erraten! ***~nSie haben die Zahl mit ~p Versuchen erraten!~n~n", [LOOP]),
