@@ -1,23 +1,29 @@
 % No tutorial without Fibonacci
 
 -module(fib).
--export([fib/1, tail/1]).
+-export([fib/1, tail/1, loop/1]).
 
-fib(0) ->
-  1;
 fib(1) ->
   1;
-fib(N) ->
+fib(2) ->
+  1;
+fib(N) when N > 0 ->
   fib(N - 1) + fib(N - 2).
 
-tail(0) ->
-  1;
 tail(1) ->
   1;
-tail(N) ->
+tail(2) ->
+  1;
+tail(N) when N > 0 ->
   tail(0, 1, N).
 
 tail(A, _, 0) ->
   A;
 tail(A, B, N) ->
-  tail(B, A+B, N-1).
+  tail(B, A + B, N - 1).
+
+loop(0) ->
+  done;
+loop(N) ->
+  io:fwrite("~p ~p~n", [fib(N), tail(N)]),
+  loop(N - 1).
