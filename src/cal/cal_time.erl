@@ -1,5 +1,5 @@
 -module(cal_time).
--author("<ratopi@abwesend.de>").
+-author("Ralf Th. Pietsch <ratopi@abwesend.de>").
 
 -export([nowInNano/0, nowInMicros/0, nowInMillis/0, nowInSeconds/0, nowInDays/0]).
 

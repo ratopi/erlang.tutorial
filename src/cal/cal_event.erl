@@ -1,17 +1,17 @@
--module(cal_date).
--author("<ratopi@abwesend.de>").
+-module(cal_event).
+-author("Ralf Th. Pietsch <ratopi@abwesend.de>").
 
--export([start/2, run/2]).
+-export([start/2]).
 
-start(PID, Entry) ->
-	spawn(?MODULE, run, [PID, Entry]).
+start(PID, Event) ->
+	spawn(?MODULE, run, [PID, Event]).
 
-run(PID, Entry) ->
-	{date, Name, WhenInSeconds} = Entry,
+run(PID, Event) ->
+	{date, _Name, WhenInSeconds} = Event,
 	Delay = WhenInSeconds - cal_time:nowInSeconds(),
 	case Delay of
 		N when N =< 0 ->
-			PID ! {timed, Entry};
+			PID ! {timed, Event};
 		N when N > 0 ->
 			WaitDelay = Delay rem (49 * 24 * 60 * 60),
 			io:fwrite("Will wait now ~p of ~p seconds~n", [WaitDelay, Delay]),
@@ -20,6 +20,6 @@ run(PID, Entry) ->
 					PID ! {canceled, Ref}
 			after
 				WaitDelay ->
-					run(PID, Entry)
+					run(PID, Event)
 			end
 	end.
