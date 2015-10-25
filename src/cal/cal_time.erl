@@ -1,17 +1,19 @@
 -module(cal_time).
 -author("<ratopi@abwesend.de>").
 
--export([nowInMicros/0, nowInMillis/0, nowInSeconds/0, nowInDays/0]).
+-export([nowInNano/0, nowInMicros/0, nowInMillis/0, nowInSeconds/0, nowInDays/0]).
+
+nowInNano() ->
+	erlang:system_time(nano_seconds).
 
 nowInMicros() ->
-	{Megas, Seconds, Micros} = os:timestamp(),
-	(Megas * 1000000 + Seconds) * 1000000 + Micros.
+	erlang:system_time(micro_seconds).
 
 nowInMillis() ->
-	round(nowInMicros() / 1000).
+	erlang:system_time(milli_seconds).
 
 nowInSeconds() ->
-	round(nowInMicros() / 1000000).
+	erlang:system_time(seconds).
 
 nowInDays() ->
-	round(nowInMicros() / (1000000 * 24 * 60 * 60)).
+	round(nowInSeconds() / (24 * 60 * 60)).
