@@ -6,7 +6,7 @@
 uuid() ->
 	uuid(32).
 
-uuid(N) ->
+uuid(N) when is_integer(N) ->
 	uuid(N, []).
 
 uuid(0, Acc) ->
@@ -15,8 +15,8 @@ uuid(N, Acc) ->
 	uuid(N - 1, [digit() | Acc]).
 
 digit() ->
-	N = (random:uniform(16) - 1) + $0,
+	N = (random:uniform(16) - 1),
 	if
-		N > $9 -> N - $9 + $a - 1;
-		true -> N
+		N < 10 -> N + $0;
+		N >= 10 -> N + $a - 10
 	end.
