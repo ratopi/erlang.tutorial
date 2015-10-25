@@ -1,5 +1,5 @@
 %% Reading PNM-Image-Files
-%% currently only P3 files are supported
+%% currently only P3 and P6 (untested) files are supported
 
 -module(pnm).
 -author("<ratopi@abwesend.de>").
@@ -13,16 +13,27 @@ read(Filename) ->
 % ---
 
 createImage(<<$P, $3, Bin/binary>>) ->
-	{ok, WidthText, R1} = nextWord(Bin),
-	{ok, HeightText, R2} = nextWord(R1),
-	{ok, DepthText, Rest} = nextWord(R2),
-
-	{Width, _} = string:to_integer(WidthText),
-	{Height, _} = string:to_integer(HeightText),
-	{Depth, _} = string:to_integer(DepthText),
-
+	{ok, [Width, Height, Depth], Rest} = nextAsciiNumbers(Bin, 3),
 	Data = convertAsciiToImage(Width, Height, Rest, []),
+	{image, {Width, Height}, {pnm, "P3", Depth}, Data};
+
+createImage(<<$P, $6, Bin/binary>>) ->
+	{ok, [Width, Height, Depth], Rest} = nextAsciiNumbers(Bin, 3),
+	Data = convertNumbersToImage(Width, Height, Rest, []),
 	{image, {Width, Height}, {pnm, "P3", Depth}, Data}.
+
+% ---
+
+convertNumbersToImage(_Width, 0, _Bin, Rows) ->
+	Rows;
+convertNumbersToImage(Width, Height, Bin, Rows) ->
+	{ok, RowData, Rest} = readNumberRow(Width, [], Bin),
+	convertNumbersToImage(Width, Height - 1, Rest, [RowData | Rows]).
+
+readNumberRow(0, RowData, Bin) ->
+	{ok, lists:reverse(RowData), Bin};
+readNumberRow(Width, RowData, <<A, B, C, Rest/binary>>) ->
+	readNumberRow(Width - 1, [[A, B, C] | RowData], Rest).
 
 % ---
 
@@ -32,8 +43,6 @@ convertAsciiToImage(Width, Height, Bin, Rows) ->
 	{ok, RowData, Rest} = readAsciiRow(Width, Bin),
 	convertAsciiToImage(Width, Height - 1, Rest, [RowData | Rows]).
 
-% ---
-
 readAsciiRow(Width, Bin) ->
 	{ok, RowData, Rest} = readAsciiRow(Width, [], Bin),
 	{ok, lists:reverse(RowData), Rest}.
@@ -41,20 +50,20 @@ readAsciiRow(Width, Bin) ->
 readAsciiRow(0, RowData, Bin) ->
 	{ok, RowData, Bin};
 readAsciiRow(Width, RowData, Bin) ->
-	{ok, Colors, Rest} = nextColorTuple(Bin),
+	{ok, Colors, Rest} = nextAsciiNumbers(Bin, 3),
 	readAsciiRow(Width - 1, [Colors | RowData], Rest).
 
 % ---
 
-nextColorTuple(Bin) ->
-	nextColorTuple(Bin, 3, []).
+nextAsciiNumbers(Bin, N) ->
+	nextAsciiNumbers(Bin, N, []).
 
-nextColorTuple(Bin, 0, Values) ->
+nextAsciiNumbers(Bin, 0, Values) ->
 	{ok, lists:reverse(Values), Bin};
-nextColorTuple(Bin, N, Values) ->
+nextAsciiNumbers(Bin, N, Values) ->
 	{ok, TextValue, Rest} = nextWord(Bin),
 	{Value, _} = string:to_integer(TextValue),
-	nextColorTuple(Rest, N - 1, [Value | Values]).
+	nextAsciiNumbers(Rest, N - 1, [Value | Values]).
 
 % ---
 
