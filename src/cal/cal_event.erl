@@ -1,7 +1,7 @@
 -module(cal_event).
 -author("Ralf Th. Pietsch <ratopi@abwesend.de>").
 
--export([start/3]).
+-export([start/3, run/3]).
 
 start(PID, WhenInSeconds, Object) when is_integer(WhenInSeconds) ->
 	spawn_link(?MODULE, run, [PID, WhenInSeconds, Object]).
