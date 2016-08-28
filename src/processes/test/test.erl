@@ -11,7 +11,10 @@
 
 %% API
 -export([fork/1, get_state/1, change_state/2]).
--export([loop/1]).
+-export([start/0]).
+
+start() ->
+	spawn(?MODULE, loop, [initial_state]).
 
 loop(State) ->
 	receive
