@@ -24,6 +24,11 @@ loop(State) ->
 			responseTo(Sender, {curr_state, State}),
 			loop(State);
 
+		{print, Sender} ->
+			io:fwrite("~w~n", [State]),
+			responseTo(Sender, {curr_state, State}),
+			loop(State);
+
 		{incr, Sender} ->
 			NewState = incr(State),
 			responseTo(Sender, {curr_state, NewState}),
@@ -32,7 +37,11 @@ loop(State) ->
 		{decr, Sender} ->
 			NewState = decr(State),
 			responseTo(Sender, {curr_state, NewState}),
-			loop(NewState)
+			loop(NewState);
+
+		{stop, Sender} ->
+			io:fwrite("~w stopped~n", [self()]),
+			responseTo(Sender, {curr_state, State})
 	end.
 
 incr({N}) ->

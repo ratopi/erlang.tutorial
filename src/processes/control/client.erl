@@ -10,16 +10,23 @@
 -author("ratopi").
 
 %% API
--export([get/1, incr/1, decr/1]).
+-export([get/1, print/1, incr/1, decr/1]).
 
 get(Pid) ->
 	do(Pid, get).
+
+print(Pid) ->
+	do(Pid, print).
 
 incr(Pid) ->
 	do(Pid, incr).
 
 decr(Pid) ->
 	do(Pid, decr).
+
+stop(Pid) ->
+	do(Pid, stop).
+
 
 do(Pid, Op) ->
 	Ref = make_ref(),
