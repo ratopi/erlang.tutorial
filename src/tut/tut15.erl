@@ -7,9 +7,9 @@
 -export([start/0, ping/3, pong/0]).
 
 start() ->
-  Pong_PID = spawn(tut15, pong, []),
-  spawn(tut15, ping, [15, Pong_PID, 300]),
-  spawn(tut15, ping, [15, Pong_PID, 200]).
+  Pong_PID = spawn(?MODULE, pong, []),
+  spawn(?MODULE, ping, [15, Pong_PID, 300]),
+  spawn(?MODULE, ping, [15, Pong_PID, 200]).
 
 
 ping(0, Pong_PID, _) ->

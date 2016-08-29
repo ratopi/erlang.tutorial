@@ -17,5 +17,5 @@ start() ->
   start(3).
 
 start(N) ->
-  spawn(tut14, say_something, [hello, N]),
-  spawn(tut14, say_something, [goodbye, N]).
+  spawn(?MODULE, say_something, [hello, N]),
+  spawn(?MODULE, say_something, [goodbye, N]).
