@@ -2,7 +2,7 @@
 %%% @author ratopi@abwesend.de
 %%% @copyright (C) 2016, Ralf Th. Pietsch
 %%% @doc
-%%% A silly simple chat client
+%%% A silly simple chat client: local API for controlling the local client process
 %%% @end
 %%% Created : 03. Sep 2016 15:49
 %%%-------------------------------------------------------------------
@@ -10,48 +10,43 @@
 -author("ratopi@abwesend.de").
 
 %% API
--export([login/0, logout/0, send/1]).
--export([consume_anything/0]).
+-export([login/0, logout/1, send/2]).
+
 
 login() ->
+	Client = start_transmitter(chatserver),
+	send_with_ack(Client, login),
+	Client.
+
+
+send(Client, Message) ->
+	send_with_ack(Client, {send, Message}),
+	ok.
+
+
+logout(Client) ->
+	send_with_ack(Client, logout),
+	send_with_ack(Client, shutdown),
+	ok.
+
+% ---
+
+start_transmitter(ServerPid) ->
+	CheckRef = make_ref(),
+	Pid = spawn(chat_client_process, transmitter, [CheckRef, ServerPid]),
+	{chatclient, CheckRef, Pid}.
+
+
+send_with_ack(Client, Cmd) ->
 	Ref = make_ref(),
-
-	chatserver ! {self(), Ref, login},
-
+	{chatclient, CheckRef, Pid} = Client,
+	Pid ! {CheckRef, self(), Ref, Cmd},
 	receive
-
-		{Ref, {notify, welcome}} ->
-			loggedin;
-
-		{Ref, {notify, alreadyloggedin}} ->
-			alreadyloggedin;
-
-		{Ref, {error, Reason}} ->
-			io:fwrite("Login failed: ~p~n", [Reason])
-
+		{Ref, ok} ->
+			ok;
+		{Ref, error, Reason} ->
+			io:fwrite("~p failed with reason ~p~n", [Cmd, Reason]),
+			{error, Reason}
 	after 5000 ->
 		timeout
-
-	end.
-
-send(Message) ->
-	Ref = make_ref(),
-	chatserver ! {self(), Ref, {message, Message}},
-	ok.
-
-logout() ->
-	Ref = make_ref(),
-	chatserver ! {self(), Ref, logout},
-	ok.
-
-
-
-consume_anything() ->
-	receive
-		X ->
-			io:fwrite("Received: ~p~n", [X]),
-			consume_anything()
-	after
-		0 ->
-			nothing
 	end.

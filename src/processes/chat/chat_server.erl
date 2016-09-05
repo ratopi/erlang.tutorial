@@ -27,7 +27,7 @@ start() ->
 
 
 control({shutdown, StopRef}) ->
-	chatserver ! {self(),make_ref(), {shutdown, StopRef}}.
+	chatserver ! {self(), make_ref(), {shutdown, StopRef}}.
 
 
 % ---
@@ -49,7 +49,8 @@ loop({StopRef, Clients}) ->
 					loop({StopRef, NewClients});
 
 				{message, Message} ->
-					send(Clients, Message, Ref),
+					send_message(Clients, Message),
+					Pid ! {Ref, ok},
 					loop({StopRef, Clients});
 
 				{shutdown, StopRef} ->
@@ -73,10 +74,10 @@ loop({StopRef, Clients}) ->
 login(Clients, Client, Ref) ->
 	case set:add(Client, Clients) of
 		{added, NewClients} ->
-			Client ! {Ref, { notify, welcome}},
+			Client ! {Ref, ok},
 			{ok, NewClients};
 		{nomod, Clients} ->
-			Client ! {Ref, {notify, alreadyloggedin}},
+			Client ! {Ref, {error, alreadyloggedin}},
 			{ok, Clients}
 	end.
 
@@ -84,12 +85,22 @@ login(Clients, Client, Ref) ->
 logout(Clients, Client, Ref) ->
 	case set:remove(Client, Clients) of
 		{removed, NewClients} ->
-			Client ! {Ref, loggedout},
+			Client ! {Ref, ok},
 			{ok, NewClients};
 		{nomod, Clients} ->
 			Client ! {Ref, {error, notloggedin}},
 			{ok, Clients}
 	end.
+
+
+
+
+send_message([], _) ->
+	ok;
+
+send_message([Client | Clients], Message) ->
+	Client ! {broadcast, Message},
+	send_message(Clients, Message).
 
 
 

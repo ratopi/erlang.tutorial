@@ -40,11 +40,11 @@ Client -> Server
 
 Server -> Client
 
-	{ Ref, { notify, welcome } }
+	{ Ref, { ok, welcome } }
 
 or
 
-	{ Ref, { notify, alreadyloggedin } }
+	{ Ref, { ok, alreadyloggedin } }
 
 
 ## Message
