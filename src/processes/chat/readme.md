@@ -40,11 +40,11 @@ Client -> Server
 
 Server -> Client
 
-	{ Ref, { ok, welcome } }
+	{ Ref, ok }
 
 or
 
-	{ Ref, { ok, alreadyloggedin } }
+	{ Ref, { error, alreadyloggedin } }
 
 
 ## Message
@@ -59,7 +59,7 @@ Server -> Client
 
 An the distribution of the message itself to all Clients in current chat:
 
-	{ Ref, message, Message }
+	{ broadcast, Message }
 
 
 ## Logout
@@ -70,7 +70,7 @@ Client -> Server
 
 Server -> Client
 
-	{ Ref, loggedout }
+	{ Ref, ok }
 
 or
 
