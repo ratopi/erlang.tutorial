@@ -17,23 +17,20 @@
 -export([encode/1, decode/1]).
 
 encode(Binary) ->
-	encode(Binary, []).
+	encode(Binary, <<>>).
 
 decode(Binary) ->
 	decode(Binary, <<>>).
 
 
 encode(<<>>, Acc) ->
-	list_to_binary(lists:reverse(Acc));
+	Acc;
 encode(<<A:6, B:6, C:6, D:6, Rest/binary>>, Acc) ->
-	List = [encode_6bit(D), encode_6bit(C), encode_6bit(B), encode_6bit(A) | Acc],
-	encode(Rest, List);
+	encode(Rest, <<Acc/binary, (encode_6bit(A)):8, (encode_6bit(B)):8, (encode_6bit(C)):8, (encode_6bit(D)):8>>);
 encode(<<A:6, B:6, C:4, Rest/binary>>, Acc) ->
-	List = [$=, encode_6bit(C), encode_6bit(B), encode_6bit(A) | Acc],
-	encode(Rest, List);
+	encode(Rest, <<Acc/binary, (encode_6bit(A)):8, (encode_6bit(B)):8, (encode_6bit(C)):8, ($=):8>>);
 encode(<<A:6, B:2, Rest/binary>>, Acc) ->
-	List = [$=, $=, encode_6bit(B), encode_6bit(A) | Acc],
-	encode(Rest, List).
+	encode(Rest, <<Acc/binary, (encode_6bit(A)):8, (encode_6bit(B)):8, ($=):8, ($=):8>>).
 
 encode_6bit(N) when N >= 0, N =< 25 ->
 	N + $A;
@@ -50,6 +47,10 @@ encode_6bit(63) ->
 
 decode(<<>>, Acc) ->
 	Acc;
+decode(<<A:8, B:8, $=:8, $=:8, Rest/binary>>, Acc) ->
+	decode(Rest, <<Acc/binary, (decode_char(A)):6, (decode_char(B)):2>>);
+decode(<<A:8, B:8, C:8, $=:8, Rest/binary>>, Acc) ->
+	decode(Rest, <<Acc/binary, (decode_char(A)):6, (decode_char(B)):6, (decode_char(C)):4>>);
 decode(<<A:8, B:8, C:8, D:8, Rest/binary>>, Acc) ->
 	decode(Rest, <<Acc/binary, (decode_char(A)):6, (decode_char(B)):6, (decode_char(C)):6, (decode_char(D)):6>>).
 
