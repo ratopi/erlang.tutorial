@@ -10,20 +10,13 @@
 -author("Ralf Thomas Pietsch <ratopi@abwesend.de>").
 
 %% API
--export([perm/1, without/2]).
+-export([perm/1]).
 
 perm([]) ->
 	[];
 
-perm(L=[_]) ->
+perm(L = [_]) ->
 	[L];
 
 perm(List) ->
-	[[X | Y] || X <- List, Y <- perm(without(X, List))].
-
-
-without(X, List) ->
-	lists:filter(
-		fun(E) -> X /= E end,
-		List
-	).
+	[[X | Y] || X <- List, Y <- perm(lists:delete(X, List))].
