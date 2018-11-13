@@ -12,9 +12,6 @@
 %% API
 -export([perm/1]).
 
-perm([]) ->
-	[];
-
 perm(L = [_]) ->
 	[L];
 
