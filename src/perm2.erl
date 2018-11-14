@@ -12,8 +12,8 @@
 %% API
 -export([perm/1]).
 
-perm(L = [_]) ->
-	[L];
+perm([]) ->
+	[[]];
 
 perm(List) ->
 	[[X | Y] || X <- List, Y <- perm(lists:delete(X, List))].
